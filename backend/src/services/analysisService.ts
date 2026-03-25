@@ -1,5 +1,5 @@
 import type { ArchitectureGraph, GraphInsights } from "@repo-nebula/shared";
-import { analyzeJavaScriptRepository } from "../analysis/javascriptAnalyzer";
+import { runAnalysisEngine } from "../analysis/analysisEngine";
 import { RepositoryRecord, repositoryStore } from "../models/repositoryStore";
 
 function buildInsights(graph: ArchitectureGraph): GraphInsights {
@@ -41,12 +41,33 @@ function buildInsights(graph: ArchitectureGraph): GraphInsights {
     .filter((node) => (outboundCount.get(node.id) ?? 0) === 0 && (inboundCount.get(node.id) ?? 0) === 0)
     .map((node) => node.id);
 
+  const dependencyHotspots = Array.from(inboundCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([id, inboundDependencies]) => ({ id, inboundDependencies }));
+
+  const complexityHints: string[] = [];
+  if (graph.nodes.length > 1200) {
+    complexityHints.push("Large graph detected. Use depth and node type filters for smoother exploration.");
+  }
+  if (circularPairs.length > 0) {
+    complexityHints.push("Circular dependencies found. Consider extracting interfaces or boundary modules.");
+  }
+  if (unusedFiles.length > 0) {
+    complexityHints.push("Unused files detected. Validate and remove dead code to reduce maintenance burden.");
+  }
+
+  const architectureSummary = `Graph contains ${graph.nodes.length} nodes and ${graph.edges.length} edges across ${new Set(graph.nodes.map((node) => node.language)).size} languages.`;
+
   return {
     dependencyCount: graph.edges.length,
     nodeCount: graph.nodes.length,
+    architectureSummary,
     largestModules,
+    dependencyHotspots,
     potentialCircularDependencies: circularPairs,
-    unusedFiles
+    unusedFiles,
+    complexityHints
   };
 }
 
@@ -68,7 +89,12 @@ export async function analyzeRepository(repository: RepositoryRecord) {
   });
 
   try {
-    const graph = analyzeJavaScriptRepository(repository.localPath);
+    const engineResult = runAnalysisEngine({
+      repositoryId: repository.id,
+      repositoryName: repository.name,
+      repositoryPath: repository.localPath
+    });
+    const graph = engineResult.graph;
     const insights = buildInsights(graph);
     const summary = generateSummary(repository.name, insights);
 
@@ -83,6 +109,7 @@ export async function analyzeRepository(repository: RepositoryRecord) {
     repositoryStore.upsertRepository({
       ...repository,
       status: "analyzed",
+      detectedLanguages: engineResult.languages,
       updatedAt: new Date().toISOString(),
       error: undefined
     });

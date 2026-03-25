@@ -19,6 +19,10 @@ export default function InsightsPage() {
       return;
     }
 
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("repo-nebula:lastRepoId", repositoryId);
+    }
+
     async function loadInsights() {
       try {
         setLoading(true);
@@ -56,7 +60,7 @@ export default function InsightsPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-3xl font-bold">Architecture Insights</h1>
+        <h1 className="font-display text-3xl font-bold glow-text">Architecture Insights</h1>
         <Link href={`/repository/${repositoryId}`} className="text-sm font-medium underline">
           Back to repository dashboard
         </Link>

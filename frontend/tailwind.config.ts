@@ -5,15 +5,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#f2f4f3",
-        ink: "#102217",
-        accent: "#ef7f1a",
-        panel: "#ffffff",
-        line: "#d7ddd8"
+        canvas: "#06050f",
+        ink: "#efeefe",
+        accent: "#8d67ff",
+        panel: "#111023",
+        line: "#2b2a47",
+        glow: "#4be7ff"
       },
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        body: ["Manrope", "sans-serif"]
+        display: ["Sora", "sans-serif"],
+        body: ["Plus Jakarta Sans", "sans-serif"]
       }
     }
   },

@@ -1,12 +1,15 @@
 import type { ArchitectureGraph, GraphInsights } from "@repo-nebula/shared";
 
 export type RepositoryStatus = "ingested" | "analyzing" | "analyzed" | "failed";
+export type RepositorySourceType = "github" | "gitlab" | "zip";
 
 export interface RepositoryRecord {
   id: string;
   repoUrl: string;
+  sourceType: RepositorySourceType;
   name: string;
   localPath: string;
+  detectedLanguages: string[];
   status: RepositoryStatus;
   createdAt: string;
   updatedAt: string;

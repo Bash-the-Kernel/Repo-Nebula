@@ -17,6 +17,10 @@ export default function RepositoryDashboardPage() {
       return;
     }
 
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("repo-nebula:lastRepoId", repositoryId);
+    }
+
     async function loadRepository() {
       try {
         setLoading(true);
@@ -60,30 +64,41 @@ export default function RepositoryDashboardPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-16">
-      <h1 className="font-display text-4xl font-bold">{repository.name}</h1>
-      <p className="mt-2 text-sm text-ink/70">Status: {repository.status}</p>
-      <p className="mt-1 text-sm text-ink/70">Source: {repository.repoUrl}</p>
+      <section className="surface rounded-2xl p-6">
+        <h1 className="font-display text-4xl font-bold glow-text">{repository.name}</h1>
+        <p className="mt-2 text-sm text-ink/70">Status: {repository.status}</p>
+        <p className="mt-1 text-sm text-ink/70">Source type: {repository.sourceType}</p>
+        <p className="mt-1 text-sm text-ink/70">Source: {repository.repoUrl}</p>
 
-      {repository.error ? <p className="mt-3 text-sm text-red-700">Last error: {repository.error}</p> : null}
-      {errorMessage ? <p className="mt-3 text-sm text-red-700">{errorMessage}</p> : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {(repository.detectedLanguages.length > 0 ? repository.detectedLanguages : ["pending"]).map((language) => (
+            <span key={language} className="rounded-full border border-line px-3 py-1 text-xs uppercase tracking-wide text-ink/70">
+              {language}
+            </span>
+          ))}
+        </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <button
-          onClick={runAnalysis}
-          disabled={analyzing}
-          className="rounded-xl bg-ink px-5 py-3 text-sm font-semibold text-white hover:bg-black disabled:opacity-60"
-        >
-          {analyzing ? "Analyzing..." : "Run Analysis"}
-        </button>
+        {repository.error ? <p className="mt-3 text-sm text-red-300">Last error: {repository.error}</p> : null}
+        {errorMessage ? <p className="mt-3 text-sm text-red-300">{errorMessage}</p> : null}
 
-        <Link className="rounded-xl border border-line bg-white px-5 py-3 text-sm font-semibold" href={`/viewer/${repository.id}`}>
-          Open Architecture Viewer
-        </Link>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            onClick={runAnalysis}
+            disabled={analyzing}
+            className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60"
+          >
+            {analyzing ? "Analyzing..." : "Run Analysis"}
+          </button>
 
-        <Link className="rounded-xl border border-line bg-white px-5 py-3 text-sm font-semibold" href={`/insights/${repository.id}`}>
-          Open Insights
-        </Link>
-      </div>
+          <Link className="rounded-xl border border-line bg-panel px-5 py-3 text-sm font-semibold" href={`/viewer/${repository.id}`}>
+            Open Architecture Viewer
+          </Link>
+
+          <Link className="rounded-xl border border-line bg-panel px-5 py-3 text-sm font-semibold" href={`/insights/${repository.id}`}>
+            Open Insights
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
