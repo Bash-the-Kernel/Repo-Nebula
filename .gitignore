@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+.env
+.env.local
+backend/storage/repos/
+backend/storage/tmp/
+backend/storage/analysis/
